@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Test CS50 Arrays - 100 Preguntas</title>
+<style>
+body { font-family: Arial; max-width: 900px; margin: auto; }
+.question { margin-bottom: 15px; padding:10px; border-bottom:1px solid #ccc;}
+button { padding:10px; margin-top:20px;}
+#result { font-size:20px; font-weight:bold; margin-top:20px;}
+table { border-collapse: collapse; width:100%; margin-top:20px;}
+th, td { border:1px solid #ccc; padding:8px; text-align:center;}
+</style>
+</head>
+<body>
+
+<h1>Test CS50 - Arrays (100 Preguntas)</h1>
+
+<label>Nombre:</label>
+<input type="text" id="studentName" required>
+<div id="quiz"></div>
+
+<button onclick="gradeQuiz()">Enviar Test</button>
+
+<div id="result"></div>
+
+<h2>Ranking</h2>
+<table>
+<thead>
+<tr><th>Nombre</th><th>Puntaje</th></tr>
+</thead>
+<tbody id="leaderboard"></tbody>
+</table>
+
+<script>
+const questions = [];
+const correctAnswers = [];
+
+// Generar 100 preguntas automáticamente
+for(let i=1;i<=100;i++){
+    let correct = Math.floor(Math.random()*4);
+    correctAnswers.push(correct);
+
+    questions.push({
+        question: `Pregunta ${i}: ¿Cuál es el índice inicial de un array en C?`,
+        options: ["1","0","-1","Depende del compilador"]
+    });
+}
+
+function loadQuiz(){
+    const quizDiv = document.getElementById("quiz");
+    questions.forEach((q,index)=>{
+        let html = `<div class="question">
+        <p>${q.question}</p>`;
+        q.options.forEach((opt,i)=>{
+            html += `
+            <label>
+            <input type="radio" name="q${index}" value="${i}">
+            ${opt}
+            </label><br>`;
+        });
+        html += "</div>";
+        quizDiv.innerHTML += html;
+    });
+}
+
+function gradeQuiz(){
+    const name = document.getElementById("studentName").value;
+    if(!name){
+        alert("Ingresa tu nombre");
+        return;
+    }
+
+    let score = 0;
+
+    questions.forEach((q,index)=>{
+        const selected = document.querySelector(`input[name="q${index}"]:checked`);
+        if(selected && parseInt(selected.value) === 1){
+            score++;
+        }
+    });
+
+    document.getElementById("result").innerHTML =
+        `${name}, obtuviste ${score} de 100 respuestas correctas.`;
+
+    saveResult(name, score);
+    loadLeaderboard();
+}
+
+function saveResult(name, score){
+    let results = JSON.parse(localStorage.getItem("results")) || [];
+    results.push({name, score});
+    localStorage.setItem("results", JSON.stringify(results));
+}
+
+function loadLeaderboard(){
+    let results = JSON.parse(localStorage.getItem("results")) || [];
+    results.sort((a,b)=>b.score - a.score);
+
+    const board = document.getElementById("leaderboard");
+    board.innerHTML = "";
+
+    results.forEach(r=>{
+        board.innerHTML += `<tr><td>${r.name}</td><td>${r.score}</td></tr>`;
+    });
+}
+
+loadQuiz();
+loadLeaderboard();
+</script>
+
+</body>
+</html>
